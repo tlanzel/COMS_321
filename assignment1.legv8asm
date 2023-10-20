@@ -15,15 +15,10 @@ BL binary_search
 PRNT X0
 
 
-
-
 B end
 
 
 
-
-
-// ADDI X19, X19, #0
 
 fill:
 SUBS X10, X9, X1 //i - n
@@ -233,52 +228,59 @@ ADDI SP, SP, #8
 
 complete_cycle:
 
-while:
-//X19 = X0 (a)
-//X20 = X1 (n)
-//X21 = X2 (start)
-//X22 = X3 (index)
-//X23 = X4 (value)
-
-
-SUBI SP, SP, #48
-STUR X19,[SP, #40]
+SUBI SP, SP, #48    //space for 6 registers
+STUR X19,[SP, #40]  //save register values to stack
 STUR X20, [SP, #32]
 STUR X21, [SP, #24]
 STUR X22, [SP, #16]
 STUR X23, [SP, #8]
 STUR LR, [SP, #0]
 
+ADD X19, X0, XZR    //X19 = X0 (a)
+ADD X20, X1, XZR    //X20 = X1 (n)
+ADD X21, X2, XZR    //X21 = X2 (start)
+ADD X22, X3, XZR    //X22 = X3 (index)
+ADD X23, X4, XZR    //X23 = X4 (value)
 
-SUBS X9, X22, X21
-CBZ 49, exit_complete_cycle
+while:
 
+SUBS X9, X22, X21               //set flag index - start
+CBZ X9, exit_complete_cycle     // branch to exit_complete_cycle if index = start 
 
+ADD X0, X19, XZR    //X0 = a (for call to find_index)
+ADD X1, X20, XZR    //X1 = n (for call to find_index)
+ADD X2, X21, XZR    //X2 = start (for call to find_index)
+ADD X3, X23, XZR    //X3 = value (for call to find_index)
 
-BL find_index //X0 -> index
-ADD X22, X0, XZR //index = index(update)
-ADD X0, X19, XZR //X0 = a
-ADD X1, X22, XZR //X1 = index
-ADD X2, X23, XZR // X2 = value
+BL find_index       //X0 -> index
+ADD X22, X0, XZR    //index = index(update)
 
-BL skip_duplicates //X0 -> index
-ADD X22, X0, XZR //index = index(update)
+ADD X0, X19, XZR    //X0 = a (for call to skip_duplicates)
+ADD X1, X22, XZR    //X1 = index (for call to skip_duplicates)
+ADD X2, X23, XZR    //X2 = value (for call to skip_duplicates)
 
-LSL X10, X22, #3 //X10 = offset index
-ADD X10, X19, X10 //X10 = &a[index]
-ADD X11, X23, XZR //X11 = value
-LDUR X23, [X10, #0] //value = a[index]
-STUR X11, [X10, #0]
+BL skip_duplicates  //X0 -> index
+ADD X22, X0, XZR    //index = index(update)
+
+LSL X10, X22, #3    //X10 = offset index
+ADD X10, X19, X10   //X10 = &a[index] = &a + offset index
+ADD X11, X23, XZR   //X11 = value
+LDUR X23, [X10, #0] //value(X23) = a[index]
+STUR X11, [X10, #0] //a[index] = value
+
+B while //back to top of while
 
 exit_complete_cycle:
+
 LDUR LR,[SP, #0]
 LDUR X23, [SP, #8]
 LDUR X22, [SP, #16]
 LDUR X21, [SP, #24]
 LDUR X20, [SP, #32]
 LDUR X19, [SP, #40]
+ADDI SP, SP, #48    //restore saved registers and stack
 
-BR LR 
+BR LR   //return to caller
 
 
 
