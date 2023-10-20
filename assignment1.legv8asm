@@ -1,0 +1,293 @@
+B main
+main:
+ADDI X0, XZR, #0
+ADDI X1, XZR, #8
+ADDI X9, XZR, #0
+BL forward_fill
+PRNL
+
+
+
+ADDI X1, XZR, #0
+ADDI X2, XZR, #8
+ADDI X3, XZR, #3
+BL binary_search
+PRNT X0
+
+
+
+
+B end
+
+
+
+
+
+// ADDI X19, X19, #0
+
+fill:
+SUBS X10, X9, X1 //i - n
+B.GE exit_fill //if i >= n -> exit_fill
+
+SUB X10, X1, X9 //i - n
+SUBI X10, X10, #1 //i - n - 1
+LSL X11,X9, #3 //i = offset
+ADD X11, X11, X0 
+STUR X10, [X11, #0] //a[i] = n - i - 1
+
+ADDI X9, X9, #1 //increment i
+PRNT X10
+B fill
+
+exit_fill:
+BR LR
+
+
+forward_fill:
+SUBS X10, X9, X1
+B.GE exit_forward_fill
+
+ADD X10, XZR, X9
+LSL X11, X9, #3
+
+ADD X11, X11, X0
+STUR X10, [X11, #0]
+
+PRNT X10 
+
+ADDI X9, X9, #1
+
+B forward_fill
+
+exit_forward_fill:
+BR LR
+
+
+
+
+
+
+swap:  
+LDUR X9, [X0, #0]  //temp = &[a]
+LDUR X0, [X1, #0] //a = &[b]
+ADD X1, X9, XZR //b = temp
+BR LR 
+
+
+
+
+
+
+
+skip_duplicates:
+ADD X9, X1, X0
+// B skip_loop
+skip_loop:
+LSL X10, X9, #3
+ADD X11, X10, X0
+LDUR X10, [X11, #0]
+
+SUB X12, X2, X10
+CBNZ X12, exit_loop
+ADDI X9, X9, #1
+B skip_loop
+
+exit_loop:
+ADD X0, X9, XZR
+BR LR
+
+
+
+
+
+
+
+
+
+find_index:
+ADDI X9, X2, #1 //i = start + 1
+ADD X10, X2, XZR //index = start
+
+loop_start2: 
+SUBS XZR, X9, X1 //i-n 
+B.GE exit_loop2 //exit if i >= n 
+LSL X11, X9, #3 //X11 = offset
+ADD X12, X11, X0 //X12 = &a[i]
+LDUR X11, [X12, #0] //X11 - a[i]
+ADDI X9,X9,#1 //i++
+
+SUBS XZR, X11, X3 //a[i] - value
+B.GE inc_index //if a[i] >= value -> index++
+B loop_start2
+
+inc_index:
+ADDI X10, X10, #1 //index++
+B loop_start2
+
+exit_loop2:
+ADD X0, X10, XZR
+BR LR 
+
+
+
+
+
+
+binary_search:
+SUBS XZR, X2, X1 //END - START FLAG
+B.LT return_one  //return if end < start
+ADD X9, X1, X2 //X9(index) = end + start
+LSR X9, X9, #1 //X9(index) = (end + start) / 2
+LSL X10, X9, #3 //X10 = offset index
+ADD X10, X10, X0 //X10 = &a + offest index = &a[index]
+LDUR X10, [X10, #0] //X10 = a[index]
+SUBS X11, X10, X3 //X11 = a[index] - value (=0)
+CBZ X11, return_index //return if equal
+
+SUBI SP, SP, #8 //LR changes becauses
+STUR LR, [SP, #0]
+
+B.GT recursive_1 //if a[index] > value -> call
+ADDI X1, X9, #1 //index ++ -> X1 for call
+
+BL binary_search //recursive call (2)
+
+LDUR LR,[SP, #0] //restore memory 
+ADDI SP, SP, #8 
+
+
+BR LR
+
+return_index:
+PRNT X1
+PRNT X2
+ADD X0, XZR, X9 //X0 = index
+BR LR
+
+return_one:
+ADDI X0, XZR, #-1 //X0 = index
+BR LR
+
+recursive_1:
+SUBI X2, X9, #1  //X2= index -1
+BL binary_search //recursive call(1)
+
+LDUR LR,[SP, #0] //restore memory
+ADDI SP, SP, #8
+
+BR LR //return
+
+
+
+complete_cycle:
+SUBS X9, X3, X2 
+CBZ X9, exit_complete_cycle
+//ADD X9, X3, XZR //X9 = index(temp)
+//ADD X3, X4, XZR //X3 = value for call
+SUBI SP, SP, #40
+STUR X19,[SP, #32]
+STUR X20, [SP, #24]
+STUR X21, [SP, #16]
+STUR X22, [SP, #8]
+// SUBI SP, SP,  #40
+// STUR X0, [SP, #0]
+
+
+BL find_index //X0 will be index
+
+// SUBI SP, SP,  
+// STUR LR, [SP, #0]
+
+
+ADD X11, X0, XZR //X11 = index store
+ADD X0, X10, XZR //X0 = a for call
+ADD X12, X1, XZR //X12 = n store
+ADD X1, XZR, X11 //X1 = index for call
+ADD X13, X2, XZR //X13 = start store
+ADD X2, X3, XZR //X2 = value for call
+
+// SUBI SP, SP,  
+// STUR LR, [SP, #0]
+
+BL skip_duplicates //X0 will change
+
+// SUBI SP, SP,  
+// STUR LR, [SP, #0]
+
+ADD X14, X0, XZR //index = X0 from fct
+
+LDUR LR,[SP, #0] //restore memory 
+ADDI SP, SP, #8 
+
+
+
+
+
+
+
+
+
+
+
+
+
+complete_cycle:
+
+while:
+//X19 = X0 (a)
+//X20 = X1 (n)
+//X21 = X2 (start)
+//X22 = X3 (index)
+//X23 = X4 (value)
+
+
+SUBI SP, SP, #48
+STUR X19,[SP, #40]
+STUR X20, [SP, #32]
+STUR X21, [SP, #24]
+STUR X22, [SP, #16]
+STUR X23, [SP, #8]
+STUR LR, [SP, #0]
+
+
+SUBS X9, X22, X21
+CBZ 49, exit_complete_cycle
+
+
+
+BL find_index //X0 -> index
+ADD X22, X0, XZR //index = index(update)
+ADD X0, X19, XZR //X0 = a
+ADD X1, X22, XZR //X1 = index
+ADD X2, X23, XZR // X2 = value
+
+BL skip_duplicates //X0 -> index
+ADD X22, X0, XZR //index = index(update)
+
+LSL X10, X22, #3 //X10 = offset index
+ADD X10, X19, X10 //X10 = &a[index]
+ADD X11, X23, XZR //X11 = value
+LDUR X23, [X10, #0] //value = a[index]
+STUR X11, [X10, #0]
+
+exit_complete_cycle:
+LDUR LR,[SP, #0]
+LDUR X23, [SP, #8]
+LDUR X22, [SP, #16]
+LDUR X21, [SP, #24]
+LDUR X20, [SP, #32]
+LDUR X19, [SP, #40]
+
+BR LR 
+
+
+
+
+
+
+
+
+cycle_sort:
+
+
+end:
