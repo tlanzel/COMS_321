@@ -1,24 +1,105 @@
 B main
 main:
-ADDI X0, XZR, #0
-ADDI X1, XZR, #8
-ADDI X9, XZR, #0
-BL forward_fill
-PRNL
+//testing
+// ADDI X0, XZR, #0
+// ADDI X1, XZR, #8
+// ADDI X9, XZR, #0
+// BL forward_fill
+// PRNL
 
 
 
-ADDI X1, XZR, #0
-ADDI X2, XZR, #8
-ADDI X3, XZR, #3
+// ADDI X1, XZR, #0
+// ADDI X2, XZR, #8
+// ADDI X3, XZR, #3
+// BL binary_search
+// PRNT X0
+
+
+// B end
+ADD X0, XZR, XZR   //X0 = address of a[] = 0
+ADDI X1, XZR, #40   //X1 = N = 5
+
+ADD X9, XZR, X0    //PUT ADDRESS OF A INTO X9
+ADD X10, X1, XZR     //PUT N INTO X10
+
+SUBI SP, SP, #16
+STUR X9, [SP, #8]   //STORE ADDRESS 
+STUR X10, [SP, #0]  //STORE N
+
+BL fill
+
+LDUR X10, [SP, #0]
+LDUR X9, [SP, #0]
+
+STUR X9, [SP, #8]
+STUR X10, [SP, #0]
+//setparameters
+ADD X0, X9, XZR    
+ADD X1, X10, XZR  
+
+BL cycle_sort
+
+LDUR X10, [SP, #0]
+LDUR X9, [SP, #0]
+
+STUR X9, [SP, #8]
+STUR X10, [SP, #0]
+//setparameters
+ADD X0, X9, XZR    
+ADD X1, XZR, XZR
+SUB X2, X10, #1 
+ADD X3, XZR, XZR
+
 BL binary_search
-PRNT X0
 
+LDUR X10, [SP, #0]
+LDUR X9, [SP, #0]
+
+STUR X9, [SP, #8]
+STUR X10, [SP, #0]
+//setparameters
+ADD X0, X9, XZR    
+ADD X1, XZR, XZR
+SUB X2, X10, #1 
+ADD X3, X10, #1
+
+BL binary_search
+
+LDUR X10, [SP, #0]
+LDUR X9, [SP, #0]
+
+STUR X9, [SP, #8]
+STUR X10, [SP, #0]
+//setparameters
+ADD X0, X9, XZR    
+ADD X1, XZR, XZR
+SUB X2, X10, #1 
+LSR X3, X10, #1
+
+BL binary_search
+
+LDUR X10, [SP, #0]
+LDUR X9, [SP, #0]
+
+STUR X9, [SP, #8]
+STUR X10, [SP, #0]
+//setparameters
+ADD X0, X9, XZR    
+ADD X1, XZR, XZR
+SUB X2, X10, #1 
+ADD X3, X10, XZR
+
+BL binary_search
+
+ADDI SP, SP, #16
+
+ADD X0, XZR, XZR
 
 B end
 
 
-
+//-------------------------------------------------------------
 
 fill:
 SUBS X10, X9, X1 //i - n
