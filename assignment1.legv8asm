@@ -1,105 +1,46 @@
 B main
 main:
-//testing
-// ADDI X0, XZR, #0
-// ADDI X1, XZR, #8
-// ADDI X9, XZR, #0
-// BL forward_fill
-// PRNL
-
-
-
-// ADDI X1, XZR, #0
-// ADDI X2, XZR, #8
-// ADDI X3, XZR, #3
-// BL binary_search
-// PRNT X0
-
-
-// B end
-ADD X0, XZR, XZR   //X0 = address of a[] = 0
+ADD X0, XZR, XZR    //X0 = address of a[] = 0
 ADDI X1, XZR, #40   //X1 = N = 5
 
-ADD X9, XZR, X0    //PUT ADDRESS OF A INTO X9
-ADD X10, X1, XZR     //PUT N INTO X10
+ADD X19, XZR, X0    //put &a[] into X19
+ADD X20, X1, XZR    //put N into X20
 
-SUBI SP, SP, #16
-STUR X9, [SP, #8]   //STORE ADDRESS 
-STUR X10, [SP, #0]  //STORE N
+BL fill             //call fill: X0 = &a, X1 = N
 
-BL fill
+ADD X0, X19, XZR    //X0 = a (for call to cycle_sort)
+ADD X1, X20, XZR    //X1 = N (for call to cycle_sort)
+BL cycle_sort       //call cycle_sort
 
-LDUR X10, [SP, #0]
-LDUR X9, [SP, #0]
-
-STUR X9, [SP, #8]
-STUR X10, [SP, #0]
-//setparameters
-ADD X0, X9, XZR    
-ADD X1, X10, XZR  
-
-BL cycle_sort
-
-LDUR X10, [SP, #0]
-LDUR X9, [SP, #0]
-
-STUR X9, [SP, #8]
-STUR X10, [SP, #0]
-//setparameters
-ADD X0, X9, XZR    
-ADD X1, XZR, XZR
-SUB X2, X10, #1 
-ADD X3, XZR, XZR
-
+ADD X0, X19, XZR    //X0 = a (for call to binary_search)
+ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
+SUB X2, X20, #1     //X2 = N-1 (for call to binary_search)
+ADD X3, XZR, XZR    //X3 = 0 (for call to binary_search)
 BL binary_search
 
-LDUR X10, [SP, #0]
-LDUR X9, [SP, #0]
-
-STUR X9, [SP, #8]
-STUR X10, [SP, #0]
-//setparameters
-ADD X0, X9, XZR    
-ADD X1, XZR, XZR
-SUB X2, X10, #1 
-ADD X3, X10, #1
-
+ADD X0, X19, XZR    //X0 = a (for call to binary_search)
+ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
+SUB X2, X20, #1     //X2 = N-1 (for call to binary_search)
+SUB X3, X20, #1     //X3 = N-1 (for call to binary_search)
 BL binary_search
 
-LDUR X10, [SP, #0]
-LDUR X9, [SP, #0]
-
-STUR X9, [SP, #8]
-STUR X10, [SP, #0]
-//setparameters
-ADD X0, X9, XZR    
-ADD X1, XZR, XZR
-SUB X2, X10, #1 
-LSR X3, X10, #1
-
+ADD X0, X19, XZR    //X0 = a (for call to binary_search)
+ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
+SUB X2, X20, #1     //X2 = N-1 (for call to binary_search)
+LSR X3, X20, #1     //X3 = N/2 (for call to binary_search)
 BL binary_search
 
-LDUR X10, [SP, #0]
-LDUR X9, [SP, #0]
-
-STUR X9, [SP, #8]
-STUR X10, [SP, #0]
-//setparameters
-ADD X0, X9, XZR    
-ADD X1, XZR, XZR
-SUB X2, X10, #1 
-ADD X3, X10, XZR
-
+ADD X0, X19, XZR    //X0 = a (for call to binary_search)
+ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
+SUB X2, X20, #1     //X2 = N-1 (for call to binary_search)
+ADD X3, X20, XZR    //X3 = N (for call to binary_search)
 BL binary_search
-
-ADDI SP, SP, #16
 
 ADD X0, XZR, XZR
-
 B end
+//end of main
 
 
-//-------------------------------------------------------------
 
 fill:
 SUBS X10, X9, X1 //i - n
@@ -294,18 +235,7 @@ ADDI SP, SP, #8
 
 
 
-
-
-
-
-
-
-
-
-
-
 complete_cycle:
-
 SUBI SP, SP, #48    //space for 6 registers
 STUR X19,[SP, #40]  //save register values to stack
 STUR X20, [SP, #32]
@@ -362,7 +292,6 @@ BR LR   //return to caller
 
 
 cycle_sort:
-
 SUBI SP, SP, #48    //space for 6 registers
 STUR X19,[SP, #40]  //save register values to stack
 STUR X20, [SP, #32]
@@ -377,7 +306,6 @@ ADD X21, XZR, XZR   //X21 = cstart = 0
 
 
 cycle_sort_for:
-
 SUBI X10, X20, #1   //X10 = n - 1
 SUBS XZR, X21, X10  //flag cstart - (n - 1)
 B.GE exit_sort      //if cstart < (n - 1) exit
