@@ -71,12 +71,9 @@ BR LR
 
 
 
-
-
-
 skip_duplicates:
 ADD X9, X1, X0
-// B skip_loop
+
 skip_loop:
 LSL X10, X9, #3
 ADD X11, X10, X0
@@ -283,13 +280,73 @@ ADDI SP, SP, #48    //restore saved registers and stack
 BR LR   //return to caller
 
 
-
-
-
-
-
-
 cycle_sort:
+
+SUBI SP, SP, #48    //space for 6 registers
+STUR X19,[SP, #40]  //save register values to stack
+STUR X20, [SP, #32]
+STUR X21, [SP, #24] 
+STUR X22, [SP, #16] //val
+STUR X23, [SP, #8]  //idx
+STUR LR, [SP, #0]
+
+ADD X19, X0, XZR    //X19 = X0 (a)
+ADD X20, X1, XZR    //X20 = X1 (n)
+ADD X21, XZR, XZR   //X21 = cstart = 0
+
+
+cycle_sort_for:
+
+SUBI X10, X20, #1   //X10 = n - 1
+SUBS XZR, X21, X10  //flag cstart - (n - 1)
+B.GE exit_sort      //if cstart < (n - 1) exit
+
+LSL X10, X21, #3    //X10 = offset cstart
+ADD X11, X19, X10   //X11 = &a[cstart]
+LDUR X22, [X11, #0] //val = a[cstart]
+
+ADD X0, X19, XZR    //X0 = a (for call to find_index)
+ADD X1, X20, XZR    //X1 = n (for call to find_index)
+ADD X2, X21, XZR    //X2 = cstart (for call to find_index)
+ADD X3, X22, XZR    //X3 = val (for call to find_index)
+
+BL find_index       //X0 -> result
+ADD X23, X0, XZR    //update idx value
+
+SUB X9, X23, X21    //X9 = idx - cstart
+CBNZ X9, cycle_sort_for
+
+ADD X0, X19, XZR    //X0 = a (for call to skip_duplicates)
+ADD X1, X23, XZR    //X1 = idx (for call to skip_duplicates)
+ADD X2, X22, XZR    //X2 = val (for call to skip_duplicates)
+
+BL skip_duplicates  //X0 -> result
+ADD X23, X0, XZR    //update idx value
+
+LSL X9, X23, #3     //X9 = offset idx
+ADD X10, X9, X19    //X10 = &a[idx] = offset idx + &a
+ADD X11, X22, XZR   //X11 = val
+LDUR X22, [X10, #0] //val(X22) = a[idx]
+STUR X11, [X10, #0] //a[idx] = val
+
+ADD X0, X19, XZR    //X0 = a (for call to complete_cycle)
+ADD X1, X20, XZR    //X1 = n (for call to complete_cycle)
+ADD X2, X21, XZR    //X2 = cstart (for call complete_cycle)
+ADD X3, X23, XZR    //X3 = idx (for call to complete_cycle)
+ADD X4, X22, XZR    //X3 = val (for call to complete_cycle)
+
+BL complete_cycle
+
+ADDI X21, X21, #1   //cstart++
+B cycle_sort_for    //back to top of loop
+
+exit_sort:
+
+BR LR   //return to caller
+
+
+
+
 
 
 end:
