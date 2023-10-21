@@ -1,3 +1,8 @@
+//COM S 321 
+//Programming Assignement 1
+//Tessa Lanzel (tflanzel)
+//May Edel (Mayedel)
+
 B main
 main:
 ADD X0, XZR, XZR    //X0 = address of a[] = 0
