@@ -17,39 +17,39 @@ ADD X0, X19, XZR    //X0 = a (for call to cycle_sort)
 ADD X1, X20, XZR    //X1 = N (for call to cycle_sort)
 BL cycle_sort       //call cycle_sort(a,N)
 
-//remove later
+//Used for testing code
 //prints the sorted array
-PRNL
-PRNL
-ADDI X1, X20, #0
-BL print_arr
-PRNL
-PRNL
+// PRNL
+// PRNL
+// ADDI X1, X20, #0
+// BL print_arr
+// PRNL
+// PRNL
 
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1    //X2 = N-1 (for call to binary_search)
 ADD X3, XZR, XZR    //X3 = 0 (for call to binary_search)
 BL binary_search    //call binary_search(a,0,N-1,0)
-PRNT X0
+// PRNT X0
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1    //X2 = N-1 (for call to binary_search)
 SUBI X3, X20, #1    //X3 = N-1 (for call to binary_search)
 BL binary_search    //call binary_search(a,0,N-1,N-1)
-PRNT X0
+// PRNT X0
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1    //X2 = N-1 (for call to binary_search)
 LSR X3, X20, #1     //X3 = N/2 (for call to binary_search)
 BL binary_search    //call binary_search(a,0,N-1,N/2)
-PRNT X0
+// PRNT X0
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1    //X2 = N-1 (for call to binary_search)
 ADD X3, X20, XZR    //X3 = N (for call to binary_search)
 BL binary_search    //call binary_search(a,0,N-1,N)
-PRNT X0
+// PRNT X0
 ADD X0, XZR, XZR    //return 0
 B end
 
@@ -289,20 +289,18 @@ ADDI SP, SP, #48    //restore stack
 
 BR LR               //return
 
-//remove later
-print_arr:
-SUBS X10, X9, X1 //X10 = i - n
-B.GE exit_fill
-LSL X11, X9, #3 //X11 = 8*i
-ADD X11, X11, X19 //X11 = &a[i]
-LDUR X11, [X11, #0] //X11 = a[i]
-PRNT X11
-ADDI X9, X9, #1 //i++
-B print_arr
-exit_print_arr:
-ADDI X9, XZR, #0 //RESET i
-BR LR
-
-
+//Used for testing code
+// print_arr:
+// SUBS X10, X9, X1 //X10 = i - n
+// B.GE exit_fill
+// LSL X11, X9, #3 //X11 = 8*i
+// ADD X11, X11, X19 //X11 = &a[i]
+// LDUR X11, [X11, #0] //X11 = a[i]
+// PRNT X11
+// ADDI X9, X9, #1 //i++
+// B print_arr
+// exit_print_arr:
+// ADDI X9, XZR, #0 //RESET i
+// BR LR
 
 end:
