@@ -6,7 +6,7 @@
 B main
 main:
 ADD X0, XZR, XZR    //X0 = address of a[] = 0
-ADDI X1, XZR, #5   //X1 = N = 5
+ADDI X1, XZR, #512   //X1 = N = 5
 
 ADD X19, XZR, X0    //put &a[] into X19
 ADD X20, X1, XZR    //put N into X20
@@ -17,32 +17,41 @@ ADD X0, X19, XZR    //X0 = a (for call to cycle_sort)
 ADD X1, X20, XZR    //X1 = N (for call to cycle_sort)
 BL cycle_sort       //call cycle_sort
 
+//prints the sorted array
+PRNL
+PRNL
+ADDI X1, X20, #0
+BL print_arr
+PRNL
+PRNL
+
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1     //X2 = N-1 (for call to binary_search)
 ADD X3, XZR, XZR    //X3 = 0 (for call to binary_search)
 BL binary_search
-
+PRNT X0
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1     //X2 = N-1 (for call to binary_search)
 SUBI X3, X20, #1     //X3 = N-1 (for call to binary_search)
 BL binary_search
-
+PRNT X0
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1     //X2 = N-1 (for call to binary_search)
 LSR X3, X20, #1     //X3 = N/2 (for call to binary_search)
 BL binary_search
-
+PRNT X0
 ADD X0, X19, XZR    //X0 = a (for call to binary_search)
 ADD X1, XZR, XZR    //X1 = 0 (for call to binary_search)
 SUBI X2, X20, #1     //X2 = N-1 (for call to binary_search)
 ADD X3, X20, XZR    //X3 = N (for call to binary_search)
 BL binary_search
-
-ADD X0, XZR, XZR
 PRNT X0
+ADD X0, XZR, XZR
+
+
 B end
 //end of main
 
@@ -59,7 +68,6 @@ ADD X11, X11, X0
 STUR X10, [X11, #0] //a[i] = n - i - 1
 
 ADDI X9, X9, #1 //increment i
-PRNT X10
 B fill
 
 exit_fill:
@@ -76,7 +84,6 @@ LSL X11, X9, #3
 ADD X11, X11, X0
 STUR X10, [X11, #0]
 
-PRNT X10 
 
 ADDI X9, X9, #1
 
@@ -167,13 +174,11 @@ ADDI SP, SP, #8
 BR LR
 
 return_index:
-PRNT X1
-PRNT X2
 ADD X0, XZR, X9 //X0 = index
 BR LR
 
 return_one:
-ADDI X0, XZR, #-1 //X0 = index
+ADDI X0, XZR, #-1   //X0 = -1
 BR LR
 
 recursive_1:
@@ -202,7 +207,6 @@ ADD X22, X3, XZR    //X22 = X3 (index)
 ADD X23, X4, XZR    //X23 = X4 (value)
 
 while:
-PRNT X19
 SUBS X9, X22, X21               //set flag index - start
 CBZ X9, exit_complete_cycle     // branch to exit_complete_cycle if index = start 
 
@@ -212,7 +216,6 @@ ADD X2, X21, XZR    //X2 = start (for call to find_index)
 ADD X3, X23, XZR    //X3 = value (for call to find_index)
 
 BL find_index       //X0 -> index
-PRNT X13
 ADD X22, X0, XZR    //index = index(update)
 
 ADD X0, X19, XZR    //X0 = a (for call to skip_duplicates)
@@ -220,7 +223,6 @@ ADD X1, X22, XZR    //X1 = index (for call to skip_duplicates)
 ADD X2, X23, XZR    //X2 = value (for call to skip_duplicates)
 
 BL skip_duplicates  //X0 -> index
-PRNT X14
 ADD X22, X0, XZR    //index = index(update)
 
 LSL X10, X22, #3    //X10 = offset index
@@ -240,7 +242,6 @@ LDUR X21, [SP, #24]
 LDUR X20, [SP, #32]
 LDUR X19, [SP, #40]
 ADDI SP, SP, #48    //restore saved registers and stack
-PRNT X9
 BR LR   //return to caller
 
 
@@ -257,14 +258,10 @@ ADD X19, X0, XZR    //X19 = X0 (a)
 ADD X20, X1, XZR    //X20 = X1 (n)
 ADD X21, XZR, XZR   //X21 = cstart = 0
 
-//PRNT X18
-
 cycle_sort_for:
 SUBI X10, X20, #1   //X10 = n - 1
 SUBS XZR, X21, X10  //flag cstart - (n - 1)
 B.GE exit_sort      //if cstart >= (n - 1) exit
-
-PRNT X21//PAST CONDITION
 
 LSL X10, X21, #3    //X10 = offset cstart
 ADD X11, X19, X10   //X11 = &a[cstart]
@@ -278,8 +275,6 @@ ADD X3, X22, XZR    //X3 = val (for call to find_index)
 BL find_index       //X0 -> result
 ADD X23, X0, XZR    //update idx value
 
-PRNT X23//PAST FIND INDEX
-
 SUB X9, X23, X21    //X9 = idx - cstart
 // BAD CBZ X9, cycle_sort_for //go to top of loop if idx = cstart
 CBZ X9, continue    //start the loop again
@@ -287,8 +282,6 @@ CBZ X9, continue    //start the loop again
 ADD X0, X19, XZR    //X0 = a (for call to skip_duplicates)
 ADD X1, X23, XZR    //X1 = idx (for call to skip_duplicates)
 ADD X2, X22, XZR    //X2 = val (for call to skip_duplicates)
-
-PRNT X19//PAST IF
 
 BL skip_duplicates  //X0 -> result
 ADD X23, X0, XZR    //update idx value
@@ -306,19 +299,13 @@ ADD X2, X21, XZR    //X2 = cstart (for call complete_cycle)
 ADD X3, X23, XZR    //X3 = idx (for call to complete_cycle)
 ADD X4, X22, XZR    //X3 = val (for call to complete_cycle)
 
-//PRNT X11//
 BL complete_cycle   //call complete_cycle
-
-
-PRNT X12//PAST COMPLETE CYCLE
 
 continue:
 ADDI X21, X21, #1   //cstart++
 B cycle_sort_for    //back to top of loop
 
 exit_sort:
-//PRNT X1
-PRNL 
 
 LDUR LR, [SP, #0]
 LDUR X23, [SP, #8]
@@ -331,7 +318,18 @@ ADDI SP, SP, #48    //space for 6 registers
 BR LR   //return to caller
 
 
-
+print_arr:
+SUBS X10, X9, X1 //X10 = i - n
+B.GE exit_fill
+LSL X11, X9, #3 //X11 = 8*i
+ADD X11, X11, X19 //X11 = &a[i]
+LDUR X11, [X11, #0] //X11 = a[i]
+PRNT X11
+ADDI X9, X9, #1 //i++
+B print_arr
+exit_print_arr:
+ADDI X9, XZR, #0 //RESET i
+BR LR
 
 
 
