@@ -84,9 +84,9 @@ skip_duplicates:    //X0 = a, X1 = start, X2 = value
 ADD X9, X1, XZR     //X9(index) = start
 
 skip_duplicates_loop:
-LSL X10, X9, #3     //X10 = offset index
-ADD X11, X10, X0    //X11 = &a[index] = &a + offset index
-LDUR X10, [X11, #0] //X10 = a[index]
+LSL X10, X9, #3         //X10 = offset index
+ADD X11, X10, X0        //X11 = &a[index] = &a + offset index
+LDUR X10, [X11, #0]     //X10 = a[index]
 
 SUB X12, X2, X10                    //X12 = value - a[index]
 CBNZ X12, exit_skip_duplicates_loop //exit the loop if value != a[index]
@@ -123,7 +123,7 @@ BR LR                   //return
 
 
 
-binary_search:
+binary_search:              //X0 = a, X1 = start, X2 = end, X3 = value
 SUBS XZR, X2, X1            //flag end - start
 B.LT return_negative_one    //return -1 if end < start
 ADD X9, X1, X2              //X9(index) = end + start
@@ -165,7 +165,7 @@ ADDI SP, SP, #8             //restore stack
 BR LR                       //return
 
 
-complete_cycle:
+complete_cycle:     //X0 = a, X1 = n, X2 = start, X3 = index, X4 = value
 SUBI SP, SP, #48    //space for 6 registers
 STUR X19,[SP, #40]  //save register values to stack
 STUR X20, [SP, #32]
@@ -180,7 +180,7 @@ ADD X21, X2, XZR    //X21 = X2 (start)
 ADD X22, X3, XZR    //X22 = X3 (index)
 ADD X23, X4, XZR    //X23 = X4 (value)
 
-cycle_while:
+complete_cycle_while:
 SUBS X9, X22, X21               //flag index - start
 CBZ X9, exit_complete_cycle     //branch to exit_complete_cycle if index = start 
 
@@ -206,7 +206,7 @@ ADD X11, X23, XZR   //X11 = value
 LDUR X23, [X10, #0] //value(X23) = a[index]
 STUR X11, [X10, #0] //a[index] = value
 
-B cycle_while       //back to top of cycle_while
+B complete_cycle_while  //back to top of complete_cycle_while
 
 exit_complete_cycle:
 LDUR LR,[SP, #0]    //restore register values
@@ -219,7 +219,7 @@ ADDI SP, SP, #48    //restore stack
 BR LR               //return
 
 
-cycle_sort:
+cycle_sort:         //X0 = a, X1 = n
 SUBI SP, SP, #48    //space for 6 registers
 STUR X19,[SP, #40]  //save register values to stack
 STUR X20, [SP, #32]
